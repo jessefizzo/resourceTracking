@@ -1,4 +1,8 @@
+import { config } from 'dotenv';
 import { db, schema } from './index.js';
+
+// Load environment variables from .env file
+config();
 
 const seedData = {
   projects: [
