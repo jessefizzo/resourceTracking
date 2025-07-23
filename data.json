@@ -1,0 +1,186 @@
+{
+  "projects": [
+    {
+      "id": "proj-001",
+      "name": "E-commerce Platform Redesign",
+      "status": "Active",
+      "description": "Complete redesign of the main e-commerce platform with modern UI/UX"
+    },
+    {
+      "id": "proj-002", 
+      "name": "Mobile App Development",
+      "status": "Active",
+      "description": "Native iOS and Android app for customer engagement"
+    },
+    {
+      "id": "proj-003",
+      "name": "Data Analytics Dashboard",
+      "status": "Planning",
+      "description": "Real-time analytics dashboard for business intelligence"
+    },
+    {
+      "id": "proj-004",
+      "name": "API Gateway Migration",
+      "status": "Active",
+      "description": "Migration from legacy API infrastructure to cloud-native gateway"
+    },
+    {
+      "id": "proj-005",
+      "name": "Security Audit & Compliance",
+      "status": "On Hold",
+      "description": "Comprehensive security audit and GDPR compliance implementation"
+    },
+    {
+      "id": "proj-006",
+      "name": "Customer Support Portal",
+      "status": "Active",
+      "description": "Self-service portal for customer ticket management and FAQ system"
+    },
+    {
+      "id": "proj-007",
+      "name": "Machine Learning Pipeline",
+      "status": "Planning",
+      "description": "Automated ML pipeline for product recommendations and user behavior analysis"
+    },
+    {
+      "id": "proj-008",
+      "name": "Legacy System Modernization",
+      "status": "Active",
+      "description": "Migrate legacy Java monolith to microservices architecture"
+    },
+    {
+      "id": "proj-009",
+      "name": "Performance Optimization",
+      "status": "Planning",
+      "description": "Database optimization and caching implementation for improved response times"
+    },
+    {
+      "id": "proj-010",
+      "name": "Multi-tenant Architecture",
+      "status": "On Hold",
+      "description": "Implement multi-tenant support for enterprise clients"
+    }
+  ],
+  "engineers": [
+    {
+      "id": "eng-001",
+      "name": "Sarah Johnson",
+      "role": "Senior Frontend Developer",
+      "currentProjects": ["proj-001", "proj-006"]
+    },
+    {
+      "id": "eng-002",
+      "name": "Mike Chen",
+      "role": "Full Stack Engineer",
+      "currentProjects": ["proj-001", "proj-004"]
+    },
+    {
+      "id": "eng-003",
+      "name": "Emily Rodriguez",
+      "role": "Mobile Developer", 
+      "currentProjects": ["proj-002"]
+    },
+    {
+      "id": "eng-004",
+      "name": "David Kim",
+      "role": "Backend Engineer",
+      "currentProjects": ["proj-004", "proj-008"]
+    },
+    {
+      "id": "eng-005",
+      "name": "Jessica Wu",
+      "role": "Data Engineer",
+      "currentProjects": ["proj-007"]
+    },
+    {
+      "id": "eng-006",
+      "name": "Alex Thompson",
+      "role": "DevOps Engineer",
+      "currentProjects": ["proj-004", "proj-008"]
+    },
+    {
+      "id": "eng-007",
+      "name": "Maria Gonzalez",
+      "role": "UI/UX Designer",
+      "currentProjects": ["proj-001", "proj-006"]
+    },
+    {
+      "id": "eng-008",
+      "name": "James Wilson",
+      "role": "Senior Backend Developer",
+      "currentProjects": []
+    },
+    {
+      "id": "eng-009",
+      "name": "Lisa Chang",
+      "role": "Frontend Developer",
+      "currentProjects": ["proj-002", "proj-006"]
+    },
+    {
+      "id": "eng-010",
+      "name": "Robert Davis",
+      "role": "Security Engineer",
+      "currentProjects": []
+    },
+    {
+      "id": "eng-011",
+      "name": "Amanda Foster",
+      "role": "Machine Learning Engineer",
+      "currentProjects": ["proj-007"]
+    },
+    {
+      "id": "eng-012",
+      "name": "Carlos Martinez",
+      "role": "Database Administrator",
+      "currentProjects": ["proj-008"]
+    },
+    {
+      "id": "eng-013",
+      "name": "Nina Patel",
+      "role": "QA Engineer",
+      "currentProjects": ["proj-001", "proj-002"]
+    },
+    {
+      "id": "eng-014",
+      "name": "Thomas Anderson",
+      "role": "Senior Full Stack Developer",
+      "currentProjects": ["proj-008"]
+    },
+    {
+      "id": "eng-015",
+      "name": "Rachel Green",
+      "role": "Frontend Developer",
+      "currentProjects": []
+    },
+    {
+      "id": "eng-016",
+      "name": "Kevin Liu",
+      "role": "Cloud Architect",
+      "currentProjects": ["proj-004"]
+    },
+    {
+      "id": "eng-017",
+      "name": "Sophie Turner",
+      "role": "Product Manager",
+      "currentProjects": ["proj-002", "proj-006"]
+    },
+    {
+      "id": "eng-018",
+      "name": "Marcus Johnson",
+      "role": "Backend Engineer",
+      "currentProjects": []
+    },
+    {
+      "id": "eng-019",
+      "name": "Isabella Chen",
+      "role": "Data Scientist",
+      "currentProjects": ["proj-007"]
+    },
+    {
+      "id": "eng-020",
+      "name": "Jordan Wright",
+      "role": "Site Reliability Engineer",
+      "currentProjects": []
+    }
+  ]
+}
