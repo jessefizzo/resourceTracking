@@ -4,6 +4,8 @@ import { db, schema } from './index.js';
 // Load environment variables from .env file
 config();
 
+console.log('Using database URL:', process.env.NETLIFY_DATABASE_URL ? 'NETLIFY_DATABASE_URL' : 'DATABASE_URL');
+
 const seedData = {
   projects: [
     {
