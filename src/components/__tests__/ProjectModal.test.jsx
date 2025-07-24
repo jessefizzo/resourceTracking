@@ -87,7 +87,8 @@ describe('ProjectModal', () => {
         name: 'Test Project',
         status: 'Active',
         priority: 'Unprioritized',
-        description: ''
+        description: '',
+        engineerIds: []
       });
     });
   });

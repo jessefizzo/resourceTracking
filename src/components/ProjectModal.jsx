@@ -12,14 +12,17 @@ import { validateProjectData } from '../utils/dataHelpers.js';
  * 
  * Modal dialog for creating and editing projects. Handles form validation,
  * data submission, and provides a clean user interface for project management.
+ * Includes engineer assignment functionality.
  * 
  * @param {Object} props - Component props
  * @param {boolean} props.show - Whether the modal is visible
  * @param {Object|null} props.project - Project object for editing (null for creating)
+ * @param {Array} props.engineers - Array of all available engineers
+ * @param {Array} props.currentAssignments - Current engineer assignments for this project
  * @param {Function} props.onSave - Callback function called when form is submitted
  * @param {Function} props.onClose - Callback function called when modal is closed
  */
-const ProjectModal = ({ show, project, onSave, onClose }) => {
+const ProjectModal = ({ show, project, engineers, currentAssignments, onSave, onClose }) => {
   // Form state management
   const [formData, setFormData] = useState(DEFAULT_PROJECT_FORM);
   const [errors, setErrors] = useState([]);
@@ -41,18 +44,20 @@ const ProjectModal = ({ show, project, onSave, onClose }) => {
     if (show) {
       if (project) {
         // Edit mode - populate form with existing project data
+        const assignedEngineerIds = currentAssignments ? currentAssignments.map(eng => eng.id) : [];
         setFormData({
           name: project.name || '',
           status: project.status || DEFAULT_PROJECT_FORM.status,
           priority: project.priority || DEFAULT_PROJECT_FORM.priority,
-          description: project.description || ''
+          description: project.description || '',
+          engineerIds: assignedEngineerIds
         });
       } else {
         // Create mode - use default values
         resetForm();
       }
     }
-  }, [project, show, resetForm]);
+  }, [project, show, resetForm, currentAssignments]);
 
   /**
    * Handle form input changes
@@ -107,6 +112,20 @@ const ProjectModal = ({ show, project, onSave, onClose }) => {
       onClose();
     }
   }, [onClose]);
+
+  /**
+   * Handle engineer assignment changes
+   * @param {string} engineerId - The engineer ID to toggle
+   * @param {boolean} checked - Whether the engineer should be assigned
+   */
+  const handleEngineerChange = useCallback((engineerId, checked) => {
+    setFormData(prevData => ({
+      ...prevData,
+      engineerIds: checked
+        ? [...prevData.engineerIds, engineerId]
+        : prevData.engineerIds.filter(id => id !== engineerId)
+    }));
+  }, []);
 
   /**
    * Handle modal close
@@ -181,6 +200,45 @@ const ProjectModal = ({ show, project, onSave, onClose }) => {
     );
   };
 
+  /**
+   * Renders engineer selection checkboxes
+   */
+  const renderEngineerSelection = () => {
+    if (!engineers || engineers.length === 0) {
+      return (
+        <div className="form-group">
+          <label>Assigned Engineers</label>
+          <p className="no-engineers-message">No engineers available for assignment</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="form-group">
+        <label>Assigned Engineers</label>
+        <div className="engineer-checkboxes">
+          {engineers.map(engineer => (
+            <div key={engineer.id} className="checkbox-item">
+              <input
+                type="checkbox"
+                id={`engineer-${engineer.id}`}
+                checked={formData.engineerIds.includes(engineer.id)}
+                onChange={(e) => handleEngineerChange(engineer.id, e.target.checked)}
+                disabled={isSubmitting}
+              />
+              <label htmlFor={`engineer-${engineer.id}`}>
+                {engineer.name} - {engineer.role}
+              </label>
+            </div>
+          ))}
+        </div>
+        {formData.engineerIds.length === 0 && (
+          <p className="assignment-hint">No engineers assigned to this project</p>
+        )}
+      </div>
+    );
+  };
+
   // Don't render if modal is not shown
   if (!show) return null;
 
@@ -221,6 +279,9 @@ const ProjectModal = ({ show, project, onSave, onClose }) => {
           {renderFormField('project-status', 'Status', 'select', true, PROJECT_STATUS_OPTIONS)}
           {renderFormField('project-priority', 'Priority', 'select', true, PROJECT_PRIORITY_OPTIONS)}
           {renderFormField('project-description', 'Description', 'textarea')}
+          
+          {/* Engineer Assignment Section */}
+          {renderEngineerSelection()}
 
           {/* Form Actions */}
           <div className="form-actions">
@@ -256,13 +317,24 @@ ProjectModal.propTypes = {
     priority: PropTypes.string,
     description: PropTypes.string
   }),
+  engineers: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    role: PropTypes.string.isRequired
+  })),
+  currentAssignments: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired
+  })),
   onSave: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired
 };
 
 // Default props
 ProjectModal.defaultProps = {
-  project: null
+  project: null,
+  engineers: [],
+  currentAssignments: []
 };
 
 export default ProjectModal;

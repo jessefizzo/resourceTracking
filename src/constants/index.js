@@ -87,11 +87,11 @@ export const DEFAULT_PROJECT_FORM = {
   name: '',
   status: PROJECT_STATUS.ACTIVE,
   priority: PROJECT_PRIORITY.UNPRIORITIZED,
-  description: ''
+  description: '',
+  engineerIds: []
 };
 
 export const DEFAULT_ENGINEER_FORM = {
   name: '',
-  role: '',
-  projectIds: []
+  role: ''
 };

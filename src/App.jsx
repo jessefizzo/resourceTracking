@@ -100,6 +100,30 @@ function App() {
       
       const newProject = await response.json();
       setProjects([...projects, newProject]);
+      
+      // Handle engineer assignments if any are selected
+      if (projectData.engineerIds && projectData.engineerIds.length > 0) {
+        const newAssignments = projectData.engineerIds.map(engineerId => ({
+          projectId: newProject.id,
+          engineerId
+        }));
+        
+        const assignmentPromises = newAssignments.map(assignment =>
+          fetch('/.netlify/functions/assignments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(assignment)
+          })
+        );
+        
+        const assignmentResults = await Promise.all(assignmentPromises);
+        const createdAssignments = await Promise.all(
+          assignmentResults.map(res => res.json())
+        );
+        
+        setAssignments([...assignments, ...createdAssignments]);
+      }
+      
       setProjectModal({ show: false, project: null });
     } catch (err) {
       setError(err.message);
@@ -108,16 +132,60 @@ function App() {
 
   const handleUpdateProject = async (projectData) => {
     try {
+      const projectId = projectModal.project.id;
+      
+      // Update project
       const response = await fetch(`/.netlify/functions/projects`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: projectModal.project.id, ...projectData })
+        body: JSON.stringify({ id: projectId, ...projectData })
       });
       
       if (!response.ok) throw new Error('Failed to update project');
       
       const updatedProject = await response.json();
       setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
+      
+      // Update engineer assignments
+      const currentAssignments = assignments.filter(a => a.projectId === projectId);
+      const newEngineerIds = projectData.engineerIds || [];
+      
+      // Remove old assignments that are no longer selected
+      const assignmentsToRemove = currentAssignments.filter(a => 
+        !newEngineerIds.includes(a.engineerId)
+      );
+      
+      // Add new assignments for newly selected engineers
+      const assignmentsToAdd = newEngineerIds.filter(engineerId =>
+        !currentAssignments.some(a => a.engineerId === engineerId)
+      ).map(engineerId => ({ projectId, engineerId }));
+      
+      // Delete old assignments
+      await Promise.all(assignmentsToRemove.map(assignment =>
+        fetch(`/.netlify/functions/assignments?id=${assignment.id}`, {
+          method: 'DELETE'
+        })
+      ));
+      
+      // Create new assignments
+      const newAssignmentResults = await Promise.all(assignmentsToAdd.map(assignment =>
+        fetch('/.netlify/functions/assignments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(assignment)
+        })
+      ));
+      
+      const createdAssignments = await Promise.all(
+        newAssignmentResults.map(res => res.json())
+      );
+      
+      // Update assignments state
+      const updatedAssignments = assignments
+        .filter(a => a.projectId !== projectId)
+        .concat(createdAssignments);
+      
+      setAssignments(updatedAssignments);
       setProjectModal({ show: false, project: null });
     } catch (err) {
       setError(err.message);
@@ -154,30 +222,6 @@ function App() {
       
       const newEngineer = await response.json();
       setEngineers([...engineers, newEngineer]);
-      
-      // Handle project assignments
-      if (engineerData.projectIds && engineerData.projectIds.length > 0) {
-        const newAssignments = engineerData.projectIds.map(projectId => ({
-          projectId,
-          engineerId: newEngineer.id
-        }));
-        
-        const assignmentPromises = newAssignments.map(assignment =>
-          fetch('/.netlify/functions/assignments', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(assignment)
-          })
-        );
-        
-        const assignmentResults = await Promise.all(assignmentPromises);
-        const createdAssignments = await Promise.all(
-          assignmentResults.map(res => res.json())
-        );
-        
-        setAssignments([...assignments, ...createdAssignments]);
-      }
-      
       setEngineerModal({ show: false, engineer: null });
     } catch (err) {
       setError(err.message);
@@ -199,47 +243,6 @@ function App() {
       
       const updatedEngineer = await response.json();
       setEngineers(engineers.map(e => e.id === updatedEngineer.id ? updatedEngineer : e));
-      
-      // Update assignments
-      const currentAssignments = assignments.filter(a => a.engineerId === engineerId);
-      const newProjectIds = engineerData.projectIds || [];
-      
-      // Remove old assignments
-      const assignmentsToRemove = currentAssignments.filter(a => 
-        !newProjectIds.includes(a.projectId)
-      );
-      
-      // Add new assignments
-      const assignmentsToAdd = newProjectIds.filter(projectId =>
-        !currentAssignments.some(a => a.projectId === projectId)
-      ).map(projectId => ({ projectId, engineerId }));
-      
-      // Delete old assignments
-      await Promise.all(assignmentsToRemove.map(assignment =>
-        fetch(`/.netlify/functions/assignments?id=${assignment.id}`, {
-          method: 'DELETE'
-        })
-      ));
-      
-      // Create new assignments
-      const newAssignmentResults = await Promise.all(assignmentsToAdd.map(assignment =>
-        fetch('/.netlify/functions/assignments', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(assignment)
-        })
-      ));
-      
-      const createdAssignments = await Promise.all(
-        newAssignmentResults.map(res => res.json())
-      );
-      
-      // Update assignments state
-      const updatedAssignments = assignments
-        .filter(a => a.engineerId !== engineerId)
-        .concat(createdAssignments);
-      
-      setAssignments(updatedAssignments);
       setEngineerModal({ show: false, engineer: null });
     } catch (err) {
       setError(err.message);
@@ -388,6 +391,8 @@ function App() {
       <ProjectModal
         show={projectModal.show}
         project={projectModal.project}
+        engineers={engineers}
+        currentAssignments={projectModal.project ? getProjectEngineers(projectModal.project.id) : []}
         onSave={projectModal.project ? handleUpdateProject : handleCreateProject}
         onClose={() => setProjectModal({ show: false, project: null })}
       />
@@ -395,8 +400,6 @@ function App() {
       <EngineerModal
         show={engineerModal.show}
         engineer={engineerModal.engineer}
-        projects={projects}
-        currentAssignments={engineerModal.engineer ? getEngineerProjects(engineerModal.engineer.id) : []}
         onSave={engineerModal.engineer ? handleUpdateEngineer : handleCreateEngineer}
         onClose={() => setEngineerModal({ show: false, engineer: null })}
       />
