@@ -4,6 +4,7 @@ export const projects = pgTable('projects', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
   status: varchar('status', { length: 50 }).notNull(), // 'Active', 'Planning', 'On Hold'
+  priority: varchar('priority', { length: 20 }).notNull().default('Unprioritized'), // 'Unprioritized', 'P1', 'P2', 'P3'
   description: text('description'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),

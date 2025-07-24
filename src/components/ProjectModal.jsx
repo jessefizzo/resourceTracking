@@ -4,6 +4,7 @@ const ProjectModal = ({ show, project, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
     status: 'Active',
+    priority: 'Unprioritized',
     description: ''
   });
 
@@ -12,12 +13,14 @@ const ProjectModal = ({ show, project, onSave, onClose }) => {
       setFormData({
         name: project.name || '',
         status: project.status || 'Active',
+        priority: project.priority || 'Unprioritized',
         description: project.description || ''
       });
     } else {
       setFormData({
         name: '',
         status: 'Active',
+        priority: 'Unprioritized',
         description: ''
       });
     }
@@ -75,6 +78,21 @@ const ProjectModal = ({ show, project, onSave, onClose }) => {
               <option value="Active">Active</option>
               <option value="Planning">Planning</option>
               <option value="On Hold">On Hold</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="project-priority">Priority *</label>
+            <select
+              id="project-priority"
+              name="priority"
+              value={formData.priority}
+              onChange={handleChange}
+              required
+            >
+              <option value="Unprioritized">Unprioritized</option>
+              <option value="P1">P1</option>
+              <option value="P2">P2</option>
+              <option value="P3">P3</option>
             </select>
           </div>
           <div className="form-group">

@@ -38,6 +38,7 @@ export const handler = async (event, context) => {
           .values({
             name: newProjectData.name,
             status: newProjectData.status,
+            priority: newProjectData.priority || 'Unprioritized',
             description: newProjectData.description
           })
           .returning();
@@ -56,6 +57,7 @@ export const handler = async (event, context) => {
           .set({
             name: updateData.name,
             status: updateData.status,
+            priority: updateData.priority || 'Unprioritized',
             description: updateData.description,
             updatedAt: new Date()
           })

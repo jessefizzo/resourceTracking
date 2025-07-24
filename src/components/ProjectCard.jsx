@@ -5,11 +5,20 @@ const ProjectCard = ({ project, engineers, onEdit, onDelete }) => {
     return `status-${status.toLowerCase().replace(/\s+/g, '-')}`;
   };
 
+  const getPriorityClass = (priority) => {
+    return `priority-${priority.toLowerCase()}`;
+  };
+
   return (
     <div className="project-card">
       <div className="project-name">{project.name}</div>
-      <div className={`project-status ${getStatusClass(project.status)}`}>
-        {project.status}
+      <div className="project-meta">
+        <div className={`project-status ${getStatusClass(project.status)}`}>
+          {project.status}
+        </div>
+        <div className={`project-priority ${getPriorityClass(project.priority)}`}>
+          {project.priority}
+        </div>
       </div>
       <p>{project.description}</p>
       <div className="project-team">
