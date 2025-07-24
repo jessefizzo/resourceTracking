@@ -13,6 +13,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [activeView, setActiveView] = useState('projects');
 
   // Modal states
   const [projectModal, setProjectModal] = useState({ show: false, project: null });
@@ -85,6 +86,16 @@ function App() {
     const assigned = new Set(assignments.map(a => a.engineerId)).size;
     const available = total - assigned;
     return { total, assigned, available };
+  };
+
+  // Sort projects by priority
+  const getSortedProjects = () => {
+    const priorityOrder = { 'P1': 1, 'P2': 2, 'P3': 3, 'Unprioritized': 4 };
+    return [...projects].sort((a, b) => {
+      const aPriority = priorityOrder[a.priority] || 4;
+      const bPriority = priorityOrder[b.priority] || 4;
+      return aPriority - bPriority;
+    });
   };
 
   // Project CRUD operations
@@ -293,6 +304,7 @@ function App() {
 
   const stats = getStats();
   const filteredEngineers = getFilteredEngineers();
+  const sortedProjects = getSortedProjects();
 
   if (loading) {
     return (
@@ -326,64 +338,95 @@ function App() {
       </header>
 
       <main>
-        <div className="dashboard">
-          <section className="projects-section">
-            <div className="section-header">
-              <h2>Active Projects</h2>
-              <button className="add-section-btn" onClick={() => openProjectModal()}>
-                + Add Project
-              </button>
-            </div>
-            <div className="projects-grid">
-              {projects.map(project => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  engineers={getProjectEngineers(project.id)}
-                  onEdit={() => openProjectModal(project)}
-                  onDelete={() => openDeleteConfirm('project', project)}
-                />
-              ))}
-            </div>
-          </section>
+        {/* Tab Navigation */}
+        <div className="view-tabs">
+          <button 
+            className={`tab-btn ${activeView === 'projects' ? 'active' : ''}`}
+            onClick={() => setActiveView('projects')}
+          >
+            Projects Overview ({projects.length})
+          </button>
+          <button 
+            className={`tab-btn ${activeView === 'engineers' ? 'active' : ''}`}
+            onClick={() => setActiveView('engineers')}
+          >
+            Engineering Team ({engineers.length})
+          </button>
+        </div>
 
-          <section className="engineers-section">
-            <div className="section-header">
-              <h2>Engineering Team</h2>
-              <button className="add-section-btn" onClick={() => openEngineerModal()}>
-                + Add Engineer
-              </button>
-            </div>
-            <div className="section-controls">
-              <div className="engineers-filter">
-                {['all', 'available', 'assigned'].map(filterType => (
-                  <button
-                    key={filterType}
-                    className={`filter-btn ${filter === filterType ? 'active' : ''}`}
-                    onClick={() => setFilter(filterType)}
-                  >
-                    {filterType.charAt(0).toUpperCase() + filterType.slice(1)} Engineers
+        <div className="dashboard">
+          {/* Projects View */}
+          {activeView === 'projects' && (
+            <section className="projects-section">
+              <div className="section-header">
+                <h2>Projects Overview</h2>
+                <div className="section-controls">
+                  <span className="priority-legend">
+                    <span className="legend-item p1">P1</span>
+                    <span className="legend-item p2">P2</span>
+                    <span className="legend-item p3">P3</span>
+                    <span className="legend-item unprioritized">Unprioritized</span>
+                  </span>
+                  <button className="add-section-btn" onClick={() => openProjectModal()}>
+                    + Add Project
                   </button>
+                </div>
+              </div>
+              <div className="projects-grid compact">
+                {sortedProjects.map(project => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    engineers={getProjectEngineers(project.id)}
+                    onEdit={() => openProjectModal(project)}
+                    onDelete={() => openDeleteConfirm('project', project)}
+                    compact={true}
+                  />
                 ))}
               </div>
-              <div className="summary-stats">
-                <span>Total: {stats.total}</span>
-                <span className="stats-available">Available: {stats.available}</span>
-                <span className="stats-assigned">Assigned: {stats.assigned}</span>
+            </section>
+          )}
+
+          {/* Engineers View */}
+          {activeView === 'engineers' && (
+            <section className="engineers-section">
+              <div className="section-header">
+                <h2>Engineering Team</h2>
+                <button className="add-section-btn" onClick={() => openEngineerModal()}>
+                  + Add Engineer
+                </button>
               </div>
-            </div>
-            <div className="engineers-grid">
-              {filteredEngineers.map(engineer => (
-                <EngineerCard
-                  key={engineer.id}
-                  engineer={engineer}
-                  projects={getEngineerProjects(engineer.id)}
-                  onEdit={() => openEngineerModal(engineer)}
-                  onDelete={() => openDeleteConfirm('engineer', engineer)}
-                />
-              ))}
-            </div>
-          </section>
+              <div className="section-controls">
+                <div className="engineers-filter">
+                  {['all', 'available', 'assigned'].map(filterType => (
+                    <button
+                      key={filterType}
+                      className={`filter-btn ${filter === filterType ? 'active' : ''}`}
+                      onClick={() => setFilter(filterType)}
+                    >
+                      {filterType.charAt(0).toUpperCase() + filterType.slice(1)} Engineers
+                    </button>
+                  ))}
+                </div>
+                <div className="summary-stats">
+                  <span>Total: {stats.total}</span>
+                  <span className="stats-available">Available: {stats.available}</span>
+                  <span className="stats-assigned">Assigned: {stats.assigned}</span>
+                </div>
+              </div>
+              <div className="engineers-grid">
+                {filteredEngineers.map(engineer => (
+                  <EngineerCard
+                    key={engineer.id}
+                    engineer={engineer}
+                    projects={getEngineerProjects(engineer.id)}
+                    onEdit={() => openEngineerModal(engineer)}
+                    onDelete={() => openDeleteConfirm('engineer', engineer)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </main>
 

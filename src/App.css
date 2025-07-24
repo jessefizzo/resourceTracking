@@ -74,10 +74,47 @@ header p {
   box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
+/* Tab Navigation */
+.view-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 30px;
+  background: white;
+  border-radius: 25px;
+  padding: 5px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  font-size: 0.9em;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.tab-btn:hover:not(.active) {
+  background: #f8f9fa;
+  color: #333;
+}
+
 .dashboard {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
   margin-bottom: 30px;
 }
 
@@ -86,6 +123,8 @@ header p {
   border-radius: 12px;
   padding: 25px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: none;
 }
 
 .section-header {
@@ -123,6 +162,12 @@ header p {
 .projects-grid {
   display: grid;
   gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.projects-grid.compact {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
 }
 
 .project-card {
@@ -132,6 +177,32 @@ header p {
   color: white;  
   position: relative;
   overflow: visible;
+  border-left: 5px solid transparent;
+}
+
+.project-card.compact {
+  padding: 15px;
+}
+
+/* Priority Color Coding */
+.project-card.priority-p1 {
+  border-left-color: #e74c3c;
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.project-card.priority-p2 {
+  border-left-color: #f39c12;
+  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+}
+
+.project-card.priority-p3 {
+  border-left-color: #f1c40f;
+  box-shadow: 0 2px 8px rgba(241, 196, 15, 0.3);
+}
+
+.project-card.priority-unprioritized {
+  border-left-color: #95a5a6;
+  box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
 }
 
 .project-card::before {
@@ -158,6 +229,11 @@ header p {
   margin-bottom: 10px;
 }
 
+.project-card.compact .project-name {
+  font-size: 1.1em;
+  margin-bottom: 8px;
+}
+
 .project-status {
   display: inline-block;
   padding: 4px 12px;
@@ -181,6 +257,34 @@ header p {
   opacity: 0.9;
 }
 
+/* Compact Team Section */
+.project-team.compact {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.project-team.compact .team-count {
+  font-size: 0.85em;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.project-team.compact .team-names {
+  font-size: 0.8em;
+  opacity: 0.8;
+  line-height: 1.3;
+}
+
+/* Compact Description */
+.project-description.compact {
+  font-size: 0.85em;
+  margin: 8px 0;
+  opacity: 0.9;
+  line-height: 1.3;
+}
+
 .engineer-chips {
   display: flex;
   flex-wrap: wrap;
@@ -202,6 +306,39 @@ header p {
   margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 15px;
+}
+
+/* Priority Legend */
+.priority-legend {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.legend-item {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: white;
+}
+
+.legend-item.p1 {
+  background: #e74c3c;
+}
+
+.legend-item.p2 {
+  background: #f39c12;
+}
+
+.legend-item.p3 {
+  background: #f1c40f;
+  color: #2c3e50;
+}
+
+.legend-item.unprioritized {
+  background: #95a5a6;
 }
 
 .engineers-filter {
@@ -587,13 +724,38 @@ form {
 }
 
 @media (max-width: 768px) {
-  .dashboard {
+  .view-tabs {
+    max-width: 100%;
+    margin: 0 0 20px 0;
+  }
+  
+  .tab-btn {
+    font-size: 0.8em;
+    padding: 10px 15px;
+  }
+  
+  .projects-grid, .projects-grid.compact {
     grid-template-columns: 1fr;
-    gap: 20px;
   }
   
   .engineers-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .section-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .priority-legend {
+    flex-wrap: wrap;
   }
   
   header h1 {
