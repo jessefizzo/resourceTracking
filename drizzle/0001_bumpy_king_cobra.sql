@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "priority" varchar(20) DEFAULT 'Unprioritized' NOT NULL;
