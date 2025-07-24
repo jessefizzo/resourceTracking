@@ -1,22 +1,44 @@
-# Resource Tracking Dashboard - React Version
+# Resource Tracking Dashboard
 
-A modern, full-stack resource tracking application built with React, Netlify Functions, and Neon PostgreSQL.
+A comprehensive resource management application built with React and deployed on Netlify. This application helps organizations track projects, manage engineers, and visualize resource allocation in real-time.
 
-## Features
+## 🚀 Features
 
-- **Modern React Architecture**: Built with React 19 and Vite for optimal performance
-- **PostgreSQL Database**: Powered by Neon with Drizzle ORM for type-safe database operations
-- **Serverless Functions**: Netlify Functions for scalable API endpoints
-- **Real-time Updates**: Live project and engineer management
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
+### Project Management
+- **Create, Edit, Delete Projects**: Full CRUD operations for project management
+- **Project Status Tracking**: Active, Planning, On Hold status options  
+- **Priority System**: Unprioritized, P1, P2, P3 priority levels
+- **Team Assignment**: Visual display of engineers assigned to each project
 
-## Tech Stack
+### Engineer Management
+- **Engineer Profiles**: Manage engineer information and roles
+- **Availability Tracking**: Real-time view of available vs assigned engineers
+- **Project Assignment**: Assign engineers to multiple projects simultaneously
+- **Filter Options**: View all, available, or assigned engineers
 
-- **Frontend**: React 19, Vite, CSS3
-- **Backend**: Netlify Functions, Node.js
-- **Database**: Neon PostgreSQL, Drizzle ORM
-- **Hosting**: Netlify
-- **Development**: ESLint, Hot Module Replacement
+### Dashboard Analytics
+- **Real-time Statistics**: Total, available, and assigned engineer counts
+- **Visual Project Cards**: Clean interface showing project details and team members
+- **Responsive Design**: Works seamlessly across desktop and mobile devices
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 19**: Modern React with hooks and functional components
+- **Vite**: Lightning-fast build tool and development server
+- **CSS3**: Custom styling with responsive design
+- **PropTypes**: Runtime type checking for React components
+
+### Backend
+- **Netlify Functions**: Serverless API endpoints
+- **Neon Database**: PostgreSQL-compatible serverless database
+- **Drizzle ORM**: Type-safe database operations with migrations
+
+### Testing & Quality
+- **Vitest**: Fast unit testing framework
+- **React Testing Library**: Component testing utilities
+- **ESLint**: Code linting and style enforcement
+- **Comprehensive Test Coverage**: Unit tests for all components and API functions
 
 ## Setup Instructions
 

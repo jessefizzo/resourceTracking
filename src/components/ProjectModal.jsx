@@ -1,122 +1,268 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
+import { 
+  PROJECT_STATUS_OPTIONS, 
+  PROJECT_PRIORITY_OPTIONS,
+  DEFAULT_PROJECT_FORM 
+} from '../constants/index.js';
+import { validateProjectData } from '../utils/dataHelpers.js';
 
+/**
+ * ProjectModal Component
+ * 
+ * Modal dialog for creating and editing projects. Handles form validation,
+ * data submission, and provides a clean user interface for project management.
+ * 
+ * @param {Object} props - Component props
+ * @param {boolean} props.show - Whether the modal is visible
+ * @param {Object|null} props.project - Project object for editing (null for creating)
+ * @param {Function} props.onSave - Callback function called when form is submitted
+ * @param {Function} props.onClose - Callback function called when modal is closed
+ */
 const ProjectModal = ({ show, project, onSave, onClose }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    status: 'Active',
-    priority: 'Unprioritized',
-    description: ''
-  });
+  // Form state management
+  const [formData, setFormData] = useState(DEFAULT_PROJECT_FORM);
+  const [errors, setErrors] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /**
+   * Reset form to default values
+   */
+  const resetForm = useCallback(() => {
+    setFormData(DEFAULT_PROJECT_FORM);
+    setErrors([]);
+    setIsSubmitting(false);
+  }, []);
+
+  /**
+   * Initialize form data when modal opens or project changes
+   */
   useEffect(() => {
-    if (project) {
-      setFormData({
-        name: project.name || '',
-        status: project.status || 'Active',
-        priority: project.priority || 'Unprioritized',
-        description: project.description || ''
-      });
-    } else {
-      setFormData({
-        name: '',
-        status: 'Active',
-        priority: 'Unprioritized',
-        description: ''
-      });
+    if (show) {
+      if (project) {
+        // Edit mode - populate form with existing project data
+        setFormData({
+          name: project.name || '',
+          status: project.status || DEFAULT_PROJECT_FORM.status,
+          priority: project.priority || DEFAULT_PROJECT_FORM.priority,
+          description: project.description || ''
+        });
+      } else {
+        // Create mode - use default values
+        resetForm();
+      }
     }
-  }, [project, show]);
+  }, [project, show, resetForm]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  const handleChange = (e) => {
+  /**
+   * Handle form input changes
+   * @param {Event} e - Input change event
+   */
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    setFormData(prevData => ({
+      ...prevData,
       [name]: value
     }));
+    
+    // Clear errors when user starts typing
+    if (errors.length > 0) {
+      setErrors([]);
+    }
+  }, [errors.length]);
+
+  /**
+   * Handle form submission
+   * @param {Event} e - Form submit event
+   */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate form data
+    const validation = validateProjectData(formData);
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrors([]);
+
+    try {
+      await onSave(formData);
+      // Form will be reset when modal closes
+    } catch (error) {
+      setErrors([error.message || 'An error occurred while saving the project']);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleBackdropClick = (e) => {
+  /**
+   * Handle backdrop click to close modal
+   * @param {Event} e - Click event
+   */
+  const handleBackdropClick = useCallback((e) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
+  }, [onClose]);
+
+  /**
+   * Handle modal close
+   */
+  const handleClose = useCallback(() => {
+    resetForm();
+    onClose();
+  }, [resetForm, onClose]);
+
+  /**
+   * Renders form field with label and validation
+   */
+  const renderFormField = (id, label, type = 'text', required = false, options = null) => (
+    <div className="form-group">
+      <label htmlFor={id}>
+        {label} {required && <span className="required">*</span>}
+      </label>
+      {type === 'select' && options ? (
+        <select
+          id={id}
+          name={id.replace('project-', '')}
+          value={formData[id.replace('project-', '')]}
+          onChange={handleChange}
+          required={required}
+          disabled={isSubmitting}
+        >
+          {options.map(option => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      ) : type === 'textarea' ? (
+        <textarea
+          id={id}
+          name={id.replace('project-', '')}
+          value={formData[id.replace('project-', '')]}
+          onChange={handleChange}
+          rows="3"
+          disabled={isSubmitting}
+          placeholder="Enter project description..."
+        />
+      ) : (
+        <input
+          type={type}
+          id={id}
+          name={id.replace('project-', '')}
+          value={formData[id.replace('project-', '')]}
+          onChange={handleChange}
+          required={required}
+          disabled={isSubmitting}
+          placeholder={`Enter project ${label.toLowerCase()}...`}
+        />
+      )}
+    </div>
+  );
+
+  /**
+   * Renders error messages
+   */
+  const renderErrors = () => {
+    if (errors.length === 0) return null;
+
+    return (
+      <div className="form-errors" role="alert">
+        {errors.map((error, index) => (
+          <div key={index} className="error-message">
+            {error}
+          </div>
+        ))}
+      </div>
+    );
   };
 
+  // Don't render if modal is not shown
   if (!show) return null;
 
+  const isEditMode = Boolean(project);
+  const modalTitle = isEditMode ? 'Edit Project' : 'Add New Project';
+  const submitButtonText = isEditMode ? 'Update Project' : 'Create Project';
+
   return (
-    <div className="modal show" onClick={handleBackdropClick}>
+    <div 
+      className="modal show" 
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-labelledby="modal-title"
+      aria-modal="true"
+    >
       <div className="modal-content">
+        {/* Modal Header */}
         <div className="modal-header">
-          <h3>{project ? 'Edit Project' : 'Add New Project'}</h3>
-          <span className="close" onClick={onClose}>&times;</span>
+          <h3 id="modal-title">{modalTitle}</h3>
+          <button
+            type="button"
+            className="close"
+            onClick={handleClose}
+            aria-label="Close modal"
+            disabled={isSubmitting}
+          >
+            &times;
+          </button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="project-name">Project Name *</label>
-            <input
-              type="text"
-              id="project-name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="project-status">Status *</label>
-            <select
-              id="project-status"
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-            >
-              <option value="Active">Active</option>
-              <option value="Planning">Planning</option>
-              <option value="On Hold">On Hold</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="project-priority">Priority *</label>
-            <select
-              id="project-priority"
-              name="priority"
-              value={formData.priority}
-              onChange={handleChange}
-              required
-            >
-              <option value="Unprioritized">Unprioritized</option>
-              <option value="P1">P1</option>
-              <option value="P2">P2</option>
-              <option value="P3">P3</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="project-description">Description</label>
-            <textarea
-              id="project-description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="3"
-            />
-          </div>
+
+        {/* Modal Body */}
+        <form onSubmit={handleSubmit} noValidate>
+          {/* Error Messages */}
+          {renderErrors()}
+
+          {/* Form Fields */}
+          {renderFormField('project-name', 'Project Name', 'text', true)}
+          {renderFormField('project-status', 'Status', 'select', true, PROJECT_STATUS_OPTIONS)}
+          {renderFormField('project-priority', 'Priority', 'select', true, PROJECT_PRIORITY_OPTIONS)}
+          {renderFormField('project-description', 'Description', 'textarea')}
+
+          {/* Form Actions */}
           <div className="form-actions">
-            <button type="button" className="btn-secondary" onClick={onClose}>
+            <button 
+              type="button" 
+              className="btn-secondary" 
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn-primary">
-              Save Project
+            <button 
+              type="submit" 
+              className="btn-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : submitButtonText}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
+};
+
+// PropTypes for type checking and documentation
+ProjectModal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  project: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    status: PropTypes.string,
+    priority: PropTypes.string,
+    description: PropTypes.string
+  }),
+  onSave: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired
+};
+
+// Default props
+ProjectModal.defaultProps = {
+  project: null
 };
 
 export default ProjectModal;
